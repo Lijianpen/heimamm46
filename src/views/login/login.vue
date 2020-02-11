@@ -13,22 +13,22 @@
       <!-- 表单 -->
       <el-form ref="loginForm" :rules="rules" :model="loginForm" label-width="43px">
         <!-- 手机号 -->
-        <el-form-item>
-          <el-input prefix-icon="el-icon-user" placeholder="请输入手机号" v-model="loginForm.phone"></el-input>
+        <el-form-item prop="phone">
+          <el-input prefix-icon="el-icon-user"  placeholder="请输入手机号" v-model="loginForm.phone"></el-input>
         </el-form-item>
         <!-- 密码 -->
         <el-form-item prop="password">
-          <el-input prefix-icon="el-icon-lock" placeholder="请输入密码" v-model="loginForm.password"></el-input>
+          <el-input prefix-icon="el-icon-lock" placeholder="请输入密码" v-model="loginForm.password" show-password ></el-input>
         </el-form-item>
         <!-- 验证码 -->
         <el-form-item prop="loginCode">
           <el-row>
-            <el-col :span="17">
+            <el-col :span="16">
               <el-input prefix-icon="el-icon-key" placeholder="请输入验证码" v-model="loginForm.loginCode"></el-input>
             </el-col>
-            <el-col :span="7" class='code-col'>
+            <el-col :span="7" :offset='1' class='code-col'>
               <!-- 登录验证码 -->
-              <img class="login-code" src="../../assets/imgs/微信图片_20200208112012.png" alt="" />
+              <img @click="changeCode" class="login-code" :src="codeURL" alt="" />
             </el-col>
           </el-row>
         </el-form-item>
@@ -57,7 +57,12 @@
 <script>
 // 导入 注册对话框组件
 import registerDialog from './coponents/registerDialog';
-
+//导入 正则表达式的检验
+import {checkPhone} from "@/utils/vaodator.js";
+// axios的包装 携带了 (是否跨域携带cookie)
+import {login} from "@/api/login"
+//token 的保存
+import {setToken} from "../../utils/token.js"
 export default {
   // 组件的名字
   name: 'login',
@@ -79,6 +84,10 @@ export default {
       },
       // 校验规则
       rules: {
+        phone:[
+          {required:true, message:'手机号码不能为空', trigger:'blur'},
+          {validation:checkPhone, trigger:'change'}
+        ],
         password: [
           { required: true, message: '密码不能为空', trigger: 'blur' },
           { min: 6, max: 12, message: '密码的长度为6-12位', trigger: 'blur' }
@@ -87,11 +96,17 @@ export default {
           { required: true, message: '验证码不能为空', trigger: 'blur' },
           { min: 4, max: 4, message: '验证码的长度为4位', trigger: 'blur' }
         ]
-      }
+      },
+      codeURL:process.env.VUE_APP_URL + '/captcha?type=login'
     };
   },
+  
   // 方法
   methods: {
+    // 刷新验证码
+    changeCode(){
+      this.codeURL=process.env.VUE_APP_URL+"/captcha?type=login&t"+Date.now()
+    },
     // 提交表单
     submitForm(formName) {
       // 等同于 this.$refs['loginForm'] 相当于获取到了Element-ui的表单
@@ -99,7 +114,27 @@ export default {
       // validate这个方法是Element-ui的表单的方法
       this.$refs[formName].validate(valid => {
         if (valid) {
-          this.$message.success('验证成功');
+          if (this.loginForm.isChecked != true) {
+            return this.$message.warning('请勾选用户协议');
+          }
+          // this.$message.success('验证成功');
+          login({
+            phone:  this.loginForm.phone,
+            password:  this.loginForm.password,
+            code:  this.loginForm.loginCode
+          }).then(res=>{
+            // window.console.log(res);
+            if(res.data.code==200){
+              this.$message.success('欢迎你')
+              //服务器返回了 token
+              //token保存到哪里 localStorage(本地储存) SessionStorage(刷新消失)
+              setToken(res.data.data.token)
+              //跳转到首页
+              this.$router.push('/index')
+            }else{
+              this.$message.error(res.data.message)
+            }
+          })
           // 验证正确
         } else {
           this.$message.error('验证失败');
