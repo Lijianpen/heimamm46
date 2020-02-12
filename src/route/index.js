@@ -9,6 +9,12 @@ import questuon from "../views/index/questuon/questuon.vue"
 import user from "../views/index/user/user.vue"
 import subject from "../views/index/subject/subject.vue"
 
+
+//导入进度条
+import NProgress from 'nprogress'
+//导入进度条样式
+import 'nprogress/nprogress.css'
+
 // 注册
 Vue.use(VueRouter)
 
@@ -51,6 +57,23 @@ const router = new VueRouter({
             ]
         }
     ]
+    
 })
 
+//导航守卫 beforeEach进入之前
+
+router.beforeEach((to, from, next) => {
+    // to and from are both route objects. must call `next`.
+    //开启进度条
+    NProgress.start()
+    //向后走
+    next()
+  })
+  
+  //导航守卫 afterEach 进入完成之后
+  router.afterEach(() => {
+    // 关闭进度条
+    NProgress.done()
+  })
+  
 export default router
