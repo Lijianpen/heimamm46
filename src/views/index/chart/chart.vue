@@ -1,5 +1,5 @@
 <template>
     <div>
-        chart页面
+        数据概览页面
     </div>
 </template>

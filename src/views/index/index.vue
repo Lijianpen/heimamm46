@@ -18,7 +18,12 @@
       <el-container>
         <!-- 侧边栏 -->
         <el-aside width="aotu">
-          <el-menu router :collapse="isCollapse" default-active="$route.path" class="el-menu-vertical-demo">
+          <el-menu
+            router
+            :collapse="isCollapse"
+            default-active="$route.path"
+            class="el-menu-vertical-demo"
+          >
             <el-menu-item index="/index/chart">
               <i class="el-icon-pie-chart"></i>
               <span slot="title">数据概览</span>
@@ -36,7 +41,7 @@
               <span slot="title">企业列表</span>
             </el-menu-item>
             <el-menu-item index="/index/subject">
-              <i class="el-icon-notebook-2"></i> 
+              <i class="el-icon-notebook-2"></i>
               <span slot="title">学科列表</span>
             </el-menu-item>
           </el-menu>
@@ -50,8 +55,8 @@
   </div>
 </template>
 <script>
-import { info, logout } from "@/api/index";
-import { getToken, removeToken } from "@/utils//token";
+import { logout } from "@/api/index";
+import {  removeToken } from "@/utils//token";
 export default {
   name: "index",
   data() {
@@ -69,7 +74,7 @@ export default {
       this.$confirm("你确定要离开我们网站", "友情提示", {
         confirmButtonText: "狠心离开",
         cancelButtonText: "继续看看",
-        type: 'error'
+        type: "error"
         // type: "success"
       })
         .then(() => {
@@ -89,26 +94,32 @@ export default {
         });
     }
   },
-  created() {
-    info().then(res => {
-      window.console.log(res);
-      //用户名
-      this.username = res.data.data.username;
-      // 用户头像
-      this.userIcon = process.env.VUE_APP_URL + "/" + res.data.data.avatar;
-    });
-  },
-  //申明周期钩子
-  //判断有没有token
-  beforeCreate() {
-    // 如果没有值
-    if (getToken() == unescape) {
-      //提示用户
-      this.$message.warning("请先登入");
-      //返回首页
-      this.$router.push("/");
-    }
-  }
+  // created() {
+  //   info().then(res => {
+  //     if (res.data.code === 206) {
+  //       this.$message.warning("登录状态有误,请重新登录");
+  //       removeToken();
+  //       this.$router.push("/login");
+  //     } else if (res.data.code === 200) {
+  //       // window.console.log(res);
+  //       //用户名
+  //       this.username = res.data.data.username;
+  //       // 用户头像
+  //       this.userIcon = process.env.VUE_APP_URL + "/" + res.data.data.avatar;
+  //     }
+  //   });
+  // },
+  // //申明周期钩子
+  // //判断有没有token
+  // beforeCreate() {
+  //   // 如果没有值
+  //   if (getToken() == unescape) {
+  //     //提示用户
+  //     this.$message.warning("请先登入");
+  //     //返回首页
+  //     this.$router.push("/");
+  //   }
+  // }
 };
 </script>
 <style lang="less">

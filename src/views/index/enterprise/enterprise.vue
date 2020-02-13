@@ -1,5 +1,3 @@
 <template>
-    <div>
-        enterprise页面
-    </div>
+  <div>企业页面</div>
 </template>
