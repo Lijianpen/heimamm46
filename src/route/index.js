@@ -8,11 +8,14 @@ import enterprise from "../views/index/enterprise/enterprise.vue"
 import questuon from "../views/index/questuon/questuon.vue"
 import user from "../views/index/user/user.vue"
 import subject from "../views/index/subject/subject.vue"
-
-import { info } from "@/api/index";
-import { getToken, removeToken } from "@/utils//token";
-
-
+//用户接口信息
+import { info } from "@/api/index.js";
+// token 的工具函数 获取token
+import { getToken, removeToken } from "../utils/token.js";
+// Element-ui弹框
+import { Message } from "element-ui"
+//导入仓库
+import store from '../store/index.js'
 
 //导入进度条
 import NProgress from 'nprogress'
@@ -83,6 +86,10 @@ const router = new VueRouter({
 
 })
 
+
+// 定义 路由白名单 （不需要登录就可以访问的页面）
+const whitePaths = ['/login'];
+
 //导航守卫 beforeEach进入之前
 
 router.beforeEach((to, from, next) => {
@@ -90,29 +97,45 @@ router.beforeEach((to, from, next) => {
     //开启进度条
     NProgress.start()
     //向后走
-    if (to.path != '/login') {
+    // if (to.path != '/login') {
+    // 白名单判断 不存在 转小写
+
+    if (whitePaths.includes(to.path.toLocaleLowerCase()) != true) {
         //需要判断登录
         // token 非空
         if (getToken() == undefined) {
             //为空 就返回登录页
+            Message.warning('登录状态有误，请检查');
             //this不是vue示列
             next('/login')
         } else {
             // token不为空 token正确判断
             info().then(res => {
+                // window.console.log(res)
                 if (res.data.code === 206) {
+                    //弹出提示
+                    Message.warning('登录有误请重新登录')
                     // 删除token
                     removeToken()
                     //返回登录页
                     next('/login')
                 } else if (res.data.code === 200) {
+                    //用户名
+                    const username = res.data.data.username;
+                    // 用户头像
+                    const userIcon = process.env.VUE_APP_URL + "/" + res.data.data.avatar;
+                    // 调用仓库的方法
+                    store.commit('changeIcon',userIcon)
+                    store.commit('changeName',username)
                     // 获取成功放走
                     next()
                 }
             })
         }
+    } else {
+        //登录页
+        next()
     }
-    next()
 })
 
 //导航守卫 afterEach 进入完成之后

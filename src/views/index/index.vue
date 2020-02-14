@@ -10,8 +10,8 @@
         </div>
         <div class="rights">
           <!-- 右边 -->
-          <img :src="userIcon" alt />
-          <p>{{username}} ,你好!</p>
+          <img :src="$store.state.userIcon" alt />
+          <p>{{$store.state.username}} ,你好!</p>
           <el-button type="primary" @click="logout">退出</el-button>
         </div>
       </el-header>
@@ -61,10 +61,10 @@ export default {
   name: "index",
   data() {
     return {
-      // 用户名
-      username: "",
-      // 用户头像
-      userIcon: "",
+      // // 用户名
+      // username: "",
+      // // 用户头像
+      // userIcon: "",
       //是否折叠
       isCollapse: false
     };
@@ -75,7 +75,6 @@ export default {
         confirmButtonText: "狠心离开",
         cancelButtonText: "继续看看",
         type: "error"
-        // type: "success"
       })
         .then(() => {
           // 点击确定
@@ -84,6 +83,9 @@ export default {
             if (res.data.code === 200) {
               // 移除token
               removeToken();
+              //移除头像和名字
+              this.$store.commit('changeIcon','')
+              this.$store.commit('changeName','')
               // 去登录页
               this.$router.push("/login");
             }
@@ -94,32 +96,8 @@ export default {
         });
     }
   },
-  // created() {
-  //   info().then(res => {
-  //     if (res.data.code === 206) {
-  //       this.$message.warning("登录状态有误,请重新登录");
-  //       removeToken();
-  //       this.$router.push("/login");
-  //     } else if (res.data.code === 200) {
-  //       // window.console.log(res);
-  //       //用户名
-  //       this.username = res.data.data.username;
-  //       // 用户头像
-  //       this.userIcon = process.env.VUE_APP_URL + "/" + res.data.data.avatar;
-  //     }
-  //   });
-  // },
-  // //申明周期钩子
-  // //判断有没有token
-  // beforeCreate() {
-  //   // 如果没有值
-  //   if (getToken() == unescape) {
-  //     //提示用户
-  //     this.$message.warning("请先登入");
-  //     //返回首页
-  //     this.$router.push("/");
-  //   }
-  // }
+  created() {
+  },
 };
 </script>
 <style lang="less">
