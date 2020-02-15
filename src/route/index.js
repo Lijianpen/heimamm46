@@ -144,7 +144,6 @@ router.afterEach(to => {
     NProgress.done()
     //修改标题
     window.document.title = to.meta.title
-    window.console.log(to)
 })
 
 export default router
