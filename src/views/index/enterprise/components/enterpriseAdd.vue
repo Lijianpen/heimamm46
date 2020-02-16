@@ -3,23 +3,23 @@
     class="subject-add"
     width="600px"
     center
-    title="新增学科"
+    title="新增企业"
     :visible.sync="dialogFormVisible"
   >
     <el-form :model="form" ref="subjectAdd" :rules="rules">
-      <el-form-item prop="rid" label="学科编号" :label-width="formLabelWidth">
-        <el-input v-model="form.rid" autocomplete="off"></el-input>
+      <el-form-item prop="eid" label="企业编号" :label-width="formLabelWidth">
+        <el-input v-model="form.eid" autocomplete="off"></el-input>
       </el-form-item>
-      <el-form-item prop="name" label="学科名称" :label-width="formLabelWidth">
+      <el-form-item prop="name" label="企业名称" :label-width="formLabelWidth">
         <el-input v-model="form.name" autocomplete="off"></el-input>
       </el-form-item>
-      <el-form-item prop="short_name" label="学科简称" :label-width="formLabelWidth">
+      <el-form-item prop="short_name" label="企业简称" :label-width="formLabelWidth">
         <el-input v-model="form.short_name" autocomplete="off"></el-input>
       </el-form-item>
-      <el-form-item prop="intro" label="学科简介" :label-width="formLabelWidth">
+      <el-form-item prop="intro" label="企业简介" :label-width="formLabelWidth">
         <el-input v-model="form.intro" autocomplete="off"></el-input>
       </el-form-item>
-      <el-form-item prop="remark" label="学科备注" :label-width="formLabelWidth">
+      <el-form-item prop="remark" label="企业备注" :label-width="formLabelWidth">
         <el-input v-model="form.remark" autocomplete="off"></el-input>
       </el-form-item>
     </el-form>
@@ -30,7 +30,7 @@
   </el-dialog>
 </template>
 <script>
-import { subjectAdd } from "@/api/subject.js";
+import { enterpriseAdd } from "@/api/enterpise.js";
 export default {
   name: "subjectAdd",
   data() {
@@ -39,9 +39,9 @@ export default {
       dialogFormVisible: false,
       // 表单绑定的数据
       form: {
-        // 学科编号
-        rid: "",
-        // 学科名称
+        // 企业编号
+        eid: "",
+        // 企业名称
         name: "",
         // 简称
         short_name: "",
@@ -51,8 +51,8 @@ export default {
         remark: ""
       },
       rules: {
-        rid: [{ required: true, message: "学科编号不能为空", trigger: "blur" }],
-        name: [{ required: true, message: "学科名称不能为空", trigger: "blur" }]
+        eid: [{ required: true, message: "企业编号不能为空", trigger: "blur" }],
+        name: [{ required: true, message: "企业名称不能为空", trigger: "blur" }]
       },
       // 文字的宽度
       formLabelWidth: "120px"
@@ -60,27 +60,31 @@ export default {
   },
   methods: {
     submitForm(formName) {
+      // 获取所有的内容
       this.$refs[formName].validate(valid => {
         if (valid) {
-          //成功
-          // 把from对象的所有的值全部传递过来
-          subjectAdd(this.form).then(res => {
+          // 成功获取
+          // 把from所有的值全部传递过来
+          enterpriseAdd(this.form).then(res => {
             window.console.log(res);
             if (res.code === 200) {
-              // 关闭对话框
+              // 关闭新增框
               this.dialogFormVisible = false;
-              // 清空对话框
+              // 清空新增框
+              // resetFields 饿了吗ui自带的
               this.$refs[formName].resetFields();
-              //重新过去数据
+              // 重新加载数据
               this.$parent.getDate();
+              // 提示对方新增成功
               this.$message.success("新增成功");
             } else if (res.code === 201) {
-              this.$message.warning(res.message);
+              this.$message.warning(res.massage);
             }
           });
         } else {
-          //失败
-          this.message.error("数据校验失败，请检查");
+          // 失败
+          //提示对方
+          this.$message.error("数据错误,请检查");
           return false;
         }
       });

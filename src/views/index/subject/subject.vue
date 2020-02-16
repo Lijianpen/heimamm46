@@ -40,8 +40,8 @@
         <el-table-column prop="username" label="创建者"></el-table-column>
         <el-table-column prop="create_time" label="创建日期">
           <template slot-scope="scope">
-              {{scope.row.creare_time|formatTime}}
-          </template>
+            {{scope.row.creare_time | formatTime}}
+            </template>
         </el-table-column>
         <el-table-column prop="status" label="状态">
           <template slot-scope="scope">
@@ -251,29 +251,3 @@ export default {
   }
 };
 </script>
-
-<style lang="less">
-.subject-container {
-  .box-card {
-    width: 1191px;
-    height: 103px;
-    background: rgba(255, 255, 255, 1);
-    box-shadow: 0px 2px 5px 0px rgba(63, 63, 63, 0.35);
-    border-radius: 4px;
-    .short {
-      width: 100px;
-    }
-    .normal {
-      width: 150px;
-    }
-  }
-  // 底部的卡片
-  .bottom-card {
-    margin-top: 19px;
-    .my-pagination {
-      margin-top: 30px;
-      text-align: center;
-    }
-  }
-}
-</style>
