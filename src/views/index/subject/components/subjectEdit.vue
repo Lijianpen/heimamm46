@@ -1,12 +1,12 @@
 <template>
   <el-dialog
-    class="subject-add"
+    class="subject-edit"
     width="600px"
     center
-    title="新增学科"
+    title="编辑学科"
     :visible.sync="dialogFormVisible"
   >
-    <el-form :model="form" ref="subjectAdd" :rules="rules">
+    <el-form :model="form" ref="subjectEdit" :rules="rules">
       <el-form-item prop="rid" label="学科编号" :label-width="formLabelWidth">
         <el-input v-model="form.rid" autocomplete="off"></el-input>
       </el-form-item>
@@ -25,14 +25,14 @@
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="dialogFormVisible = false">取 消</el-button>
-      <el-button type="primary" @click="submitForm('subjectAdd')">确 定</el-button>
+      <el-button type="primary" @click="submitForm('subjectEdit')">确 定</el-button>
     </div>
   </el-dialog>
 </template>
 <script>
-import {subjectAdd} from "@/api/subject.js";
+import { subjectEdit } from "@/api/subject.js";
 export default {
-  name: "subjectAdd",
+  name: "subjectEdit",
   data() {
     return {
       // 是否显示对话框
@@ -62,25 +62,23 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          //成功
-          // 把from对象的所有的值全部传递过来
-          subjectAdd(this.form).then(res => {
-            window.console.log(res);
+          subjectEdit(this.form).then(res => {
             if (res.code === 200) {
-              // 关闭对话框
+              //关闭编辑框
               this.dialogFormVisible = false;
-              // 清空对话框
+              //   清空对话框
               this.$refs[formName].resetFields();
-              //重新过去数据
+              // 重新获取数据
               this.$parent.getDate();
-              this.$message.success("新增成功");
+              this.$message.success("编辑成功");
             } else if (res.code === 201) {
-              this.$message.warning(res.message);
+              //   this.$message.warning(res.message);
+              this.$message.warning("学科编号不能重复哦，请检查");
             }
           });
         } else {
-          //失败
-          this.message.error("数据校验失败，请检查");
+          // 失败
+          this.$message.errpr("数据校验失败,请检查");
           return false;
         }
       });
@@ -89,7 +87,7 @@ export default {
 };
 </script>
 <style lang="less">
-.subject-add {
+.subject-edit {
   .el-dialog__header {
     background: linear-gradient(to right, #00c6f9, #1495fb);
   }

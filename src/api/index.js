@@ -1,18 +1,18 @@
 // 导入 axios
 import axios from 'axios';
-// 导入 Vue
-import Vue from 'vue'
-import VueRouter from 'vue-router'
+// // 导入 Vue
+// import Vue from 'vue'
+// import VueRouter from 'vue-router'
 // import chart from "../views/index/chart/chart.vue"
 
 // 导入token工具函数
 import {getToken} from "../utils/token.js"
 
 
-// 注册
-Vue.use(VueRouter)
+// // 注册
+// Vue.use(VueRouter)
 
-Vue.config.productionTip = false;
+// Vue.config.productionTip = false;
 
 // 用户信息 接口
 const indexRequest =axios.create({
