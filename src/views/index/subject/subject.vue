@@ -38,7 +38,11 @@
         <el-table-column prop="name" label="学科名称"></el-table-column>
         <el-table-column prop="short_name" label="简称"></el-table-column>
         <el-table-column prop="username" label="创建者"></el-table-column>
-        <el-table-column prop="create_time" label="创建日期"></el-table-column>
+        <el-table-column prop="create_time" label="创建日期">
+          <template slot-scope="scope">
+              {{scope.row.creare_time|formatTime}}
+          </template>
+        </el-table-column>
         <el-table-column prop="status" label="状态">
           <template slot-scope="scope">
             <span v-if="scope.row.status===1">启用</span>
@@ -175,12 +179,17 @@ export default {
     },
     // 编辑
     handleEdit(index, row) {
-      window.console.log(index, row);
-      row.name = "王二花";
+      // window.console.log(index, row);
+      // row.name = "王二花";
       // 弹出编辑框
       this.$refs.subjectEdit.dialogFormVisible = true;
       // 获取数据并显示在框里
-      this.$refs.subjectEdit.form = JSON.parse(JSON.stringify(row));
+      // 看id相不相等 不相等就执行清空
+      if (row.id != this.$refs.subjectEdit.form.id) {
+        this.$refs.subjectEdit.form = JSON.parse(JSON.stringify(row));
+      } else {
+        //相等的就不执行
+      }
     },
     // 删除
     handleDelete(index, row) {
@@ -193,18 +202,21 @@ export default {
         .then(() => {
           // 确定
           subjectRemove({
-            id:row.id
-          }).then(res=>{
-            if(res.code===200){
-              this.$message.success('删除成功')
-              this.getDate()
+            id: row.id
+          }).then(res => {
+            if (res.code === 200) {
+              this.$message.success("删除成功");
+              if (this.tableData.length == 1) {
+                this.index--;
+                if (this.index <= 0) {
+                  index = 1;
+                }
+              }
+              this.getDate();
             }
-          })
-         
+          });
         })
-        .catch(() => {
-
-        });
+        .catch(() => {});
     },
     // 不允许
     handleNotAllow(index, row) {
