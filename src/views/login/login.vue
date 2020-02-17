@@ -125,7 +125,7 @@ export default {
           }).then(res=>{
             // window.console.log(res);
             if(res.data.code==200){
-              this.$message.success('欢迎你')
+              // this.$message.success('欢迎你')
               //服务器返回了 token
               //token保存到哪里 localStorage(本地储存) SessionStorage(刷新消失)
               setToken(res.data.data.token)

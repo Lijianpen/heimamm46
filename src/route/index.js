@@ -36,14 +36,16 @@ const router = new VueRouter({
             path: "/login",
             component: login,
             meta: {
-                title: "登录"
+                title: "登录",
+                rules: ['管理员','老师','学生']
             },
         },
         {
             path: "/index",
             component: index,
             meta: {
-                title: "首页"
+                title: "首页",
+                rules: ['管理员','老师','学生']
             },
             // 嵌套路由
             children: [
@@ -51,32 +53,43 @@ const router = new VueRouter({
                     //不用加/ 
                     //会自动解析为/chart
                     path: "chart",
-                    component: chart, meta: {
-                        title: "数据概览"
+                    component: chart,
+                    meta: {
+                        title: "数据概览",
+                        rules: ['管理员','老师','学生']
                     },
                 },
                 {
                     path: "enterprise",
-                    component: enterprise, meta: {
-                        title: "企业列表"
+                    component: enterprise,
+                    meta: {
+                        title: "企业列表",
+                        rules: ['管理员']
+
                     },
                 },
                 {
                     path: "questuon",
-                    component: questuon, meta: {
-                        title: "题库列表"
+                    component: questuon,
+                    meta: {
+                        title: "题库列表",
+                        rules: ['管理员','老师']
                     },
                 },
                 {
                     path: "subject",
-                    component: subject, meta: {
-                        title: "学科列表"
+                    component: subject,
+                    meta: {
+                        title: "学科列表",
+                        rules: ['管理员','老师','学生']
                     },
                 },
                 {
                     path: "user",
-                    component: user, meta: {
-                        title: "用户列表"
+                    component: user,
+                    meta: {
+                        title: "用户列表",
+                        rules: [ '管理员']
                     },
                 },
 
@@ -120,15 +133,35 @@ router.beforeEach((to, from, next) => {
                     //返回登录页
                     next('/login')
                 } else if (res.data.code === 200) {
-                    //用户名
-                    const username = res.data.data.username;
-                    // 用户头像
-                    const userIcon = process.env.VUE_APP_URL + "/" + res.data.data.avatar;
-                    // 调用仓库的方法
-                    store.commit('changeIcon',userIcon)
-                    store.commit('changeName',username)
-                    // 获取成功放走
-                    next()
+                    if (res.data.data.status === 1) {
+                        //用户名
+                        const username = res.data.data.username;
+                        // 用户头像
+                        const userIcon = process.env.VUE_APP_URL + "/" + res.data.data.avatar;
+                        // 调用仓库的方法
+                        store.commit('changeIcon', userIcon)
+                        store.commit('changeName', username)
+                        if (whitePaths.includes(from.path)) {
+                            // 欢迎你
+                            Message.success('欢迎你')
+                        }
+                        const role = res.data.data.role
+                        // 获取用户的角色
+                        if (to.meta.rules.includes(role)) {
+                            // 获取成功放走
+                            next()
+                        } else {
+                            // 没有提示用户
+                            Message.warning('没有权限,无法访问')
+                            NProgress.done
+                        }
+                    } else {
+                        //禁用状态
+                        // 打回登录页
+                        Message.waring('当前处于禁用状态,请联系管理员启用')
+                        NProgress();
+                        next('/login')
+                    }
                 }
             })
         }
