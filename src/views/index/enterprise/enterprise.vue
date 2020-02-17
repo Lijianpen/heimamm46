@@ -41,7 +41,7 @@
         <el-table-column prop="create_time" label="创建日期">
           <template slot-scope="scope">
             <!-- 使用全局过滤器 -->
-             {{ scope.row.create_time | formatTime }}
+            {{ scope.row.create_time | formatTime }}
           </template>
         </el-table-column>
         <el-table-column prop="status" label="状态">
@@ -77,19 +77,26 @@
       ></el-pagination>
     </el-card>
     <enterpriseAdd ref="enterpriseAdd"></enterpriseAdd>
+    <enterpriseEdit ref="enterpriseEdit"></enterpriseEdit>
   </div>
 </template>
 
 <script>
 //导入接口
-import { enterpriseList,enterpriseStatus } from "@/api/enterpise.js";
+import {
+  enterpriseList,
+  enterpriseStatus,
+  enterpriseRemove
+} from "@/api/enterpise.js";
 // 导入新增企业页面
 import enterpriseAdd from "./components/enterpriseAdd.vue";
+import enterpriseEdit from "./components/enterpriseEdit.vue";
 export default {
   name: "enterprise",
   // 注册组件
   components: {
-    enterpriseAdd
+    enterpriseAdd,
+    enterpriseEdit
   },
   data() {
     return {
@@ -144,8 +151,14 @@ export default {
   methods: {
     // 获取数据
     getDate() {
-      enterpriseList().then(res => {
-        window.console.log(res);
+      enterpriseList({
+        //页码
+        page: this.index,
+        // 页容量
+        limit: this.size,
+        ...this.formInline
+      }).then(res => {
+        // window.console.log(res);
         //表格数据
         this.tableData = res.data.items;
         //页数
@@ -153,37 +166,87 @@ export default {
       });
     },
     // 清除
-    clearSeach() {},
+    clearSeach() {
+      //饿了吗ui 自带的
+      this.$refs.formInline.resetFields();
+
+      // 返回第一页
+      this.index = 1;
+      // 重新获取数据
+      this.getDate();
+    },
     //企业搜索
-    enterpriseSubject() {},
+    enterpriseSubject() {
+      this.index = 1;
+      this.getDate();
+    },
     // 编辑
     handleEdit(index, row) {
       window.console.log(index, row);
+      this.enterpriseEdit.dialogFormVisible = true;
+      if (row.id != this.$refs.dialogFormVisible.form.id) {
+        this.$refs.dialogFormVisible.form = JSON.parse(JSON.stringify(row));
+      }else{
+        //不执行
+      }
     },
     // 删除
     handleDelete(index, row) {
-      window.console.log(index, row);
+      // window.console.log(index, row);
+      this.$confirm("此操作将永久删除该学科, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          // 确定
+          enterpriseRemove({
+            id: row.id
+          }).then(res => {
+            // 成功提示用户
+            if (res.code === 200) {
+              if (this.tableData.length === 1) {
+                this.index--;
+                if (this.index <= 0) {
+                  index = 1;
+                }
+              }
+              this.$message.success("删除成功");
+            }
+            // 重新获取数据
+            this.getDate();
+          });
+        })
+        .catch(() => {});
     },
     // 不允许
     changeStatus(index, row) {
-      window.console.log(index, row);
+      // window.console.log(index, row);
       enterpriseStatus({
-        id:row.id
-      }).then(res=>{
-        window.console.log(res)
-        this.$message.success('切换成功')
+        id: row.id
+      }).then(res => {
+        window.console.log(res);
+        this.$message.success("切换成功");
         // 重新加载数据
-        this.getDate()
-      })
-
+        this.getDate();
+      });
     },
     // 页容量改变
     sizeChange(val) {
-      window.console.log(`每页 ${val} 条`);
+      // window.console.log(`每页 ${val} 条`);
+      // 发生改变回到第一页
+      this.index = 1;
+      // 设置新的页容量
+      this.size = val;
+      // 重新获取数据
+      this.getDate();
     },
     // 页码改变
     currentChange(val) {
-      window.console.log(`当前页: ${val}`);
+      // window.console.log(`当前页: ${val}`);
+      this.index = val;
+      // 重新获取数据
+      this.getDate();
     }
   }
 };

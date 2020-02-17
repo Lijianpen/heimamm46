@@ -58,7 +58,7 @@ const router = new VueRouter({
                 {
                     path: "enterprise",
                     component: enterprise, meta: {
-                        title: "切页列表"
+                        title: "企业列表"
                     },
                 },
                 {

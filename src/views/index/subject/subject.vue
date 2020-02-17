@@ -12,11 +12,11 @@
         <el-form-item label="创建者" prop="username">
           <el-input class="short" v-model="formInline.username" placeholder="创建者"></el-input>
         </el-form-item>
-        <el-form-item label="活动区域" prop="name">
-          <el-select class="normal" v-model="formInline.status" placeholder="活动区域">
+        <el-form-item label="状态" prop="status">
+          <el-select class="normal" v-model="formInline.status" placeholder="状态">
             <el-option label="所有" value></el-option>
-            <el-option label="禁用" value="1"></el-option>
-            <el-option label="启动" value="2"></el-option>
+            <el-option label="禁用" value="0"></el-option>
+            <el-option label="启动" value="1"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -39,9 +39,7 @@
         <el-table-column prop="short_name" label="简称"></el-table-column>
         <el-table-column prop="username" label="创建者"></el-table-column>
         <el-table-column prop="create_time" label="创建日期">
-          <template slot-scope="scope">
-            {{scope.row.creare_time | formatTime}}
-            </template>
+          <template slot-scope="scope">{{scope.row.creare_time | formatTime}}</template>
         </el-table-column>
         <el-table-column prop="status" label="状态">
           <template slot-scope="scope">
@@ -251,3 +249,26 @@ export default {
   }
 };
 </script>
+
+<style lang="less">
+// 最外层容器
+.subject-container {
+  // 短的输入框
+  .short {
+    width: 100px;
+  }
+  // 长一些的输入框
+  .normal {
+    width: 150px;
+  }
+  // 底部的卡片
+  .bottom-card {
+    margin-top: 19px;
+    .my-pagination {
+      margin-top: 30px;
+      text-align: center;
+    }
+  }
+}
+</style>
+
