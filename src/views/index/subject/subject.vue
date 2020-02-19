@@ -49,13 +49,13 @@
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="niubi">
-            <el-button type="text" size="mini" @click="handleEdit(niubi.$index, niubi.row)">编辑</el-button>
+            <el-button type="text" v-if="['管理员','老师'].includes($store.state.role)" size="mini" @click="handleEdit(niubi.$index, niubi.row)">编辑</el-button>
             <el-button
               type="text"
               size="mini"
               @click="handleNotAllow(niubi.$index, niubi.row)"
             >{{ niubi.row.status===1 ?'禁用' : '启用'}}</el-button>
-            <el-button size="mini" type="text" @click="handleDelete(niubi.$index, niubi.row)">删除</el-button>
+            <el-button size="mini" v-if="['管理员'].includes($store.state.role)" type="text" @click="handleDelete(niubi.$index, niubi.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

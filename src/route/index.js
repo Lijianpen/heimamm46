@@ -1,182 +1,157 @@
-import Vue from 'vue'
+// 导入Vue
+import Vue from 'vue';
+// 导入Vue-router
+import VueRouter from 'vue-router';
 
-import VueRouter from 'vue-router'
-import login from "../views/login/login.vue"
-import index from "../views/index/index.vue"
-import chart from "../views/index/chart/chart.vue"
-import enterprise from "../views/index/enterprise/enterprise.vue"
-import questuon from "../views/index/questuon/questuon.vue"
-import user from "../views/index/user/user.vue"
-import subject from "../views/index/subject/subject.vue"
-//用户接口信息
-import { info } from "@/api/index.js";
-// token 的工具函数 获取token
-import { getToken, removeToken } from "../utils/token.js";
-// Element-ui弹框
-import { Message } from "element-ui"
-//导入仓库
-import store from '../store/index.js'
+// 导入 进度条组件
+import NProgress from 'nprogress';
+// 导入 进度条样式
+import 'nprogress/nprogress.css';
 
-//导入进度条
-import NProgress from 'nprogress'
-//导入进度条样式
-import 'nprogress/nprogress.css'
+// 导入token的工具函数 获取token
+import { getToken, removeToken } from '@/utils/token.js';
 
+// 导入 用户信息获取接口
+import { info } from '@/api/index.js';
 
+// 按需导入 Element-ui的弹框
+import { Message } from 'element-ui';
 
+// 导入仓库
+import store from '@/store/index.js';
 
-// 注册
-Vue.use(VueRouter)
+// 注册一下 use
+Vue.use(VueRouter);
 
-Vue.config.productionTip = false
+// 导入 组件 login
+import login from '../views/login/login.vue';
+// 导入 组件 index
+import index from '../views/index/index.vue';
 
+// 导入嵌套路由
+import children from './childrenRoutes.js';
+
+// 创建路由对象
 const router = new VueRouter({
+    // 路由规则
     routes: [
+        // 空地址的重定向
         {
-            path: "/login",
+            path: '/',
+            redirect: '/login'
+            // component:login,
+        },
+        // 登录
+        {
+            path: '/login',
+            // path:"/",
             component: login,
             meta: {
-                title: "登录",
-                rules: ['管理员','老师','学生']
-            },
+                title: '登录',
+                // 允许访问的角色
+                rules: ['超级管理员', '管理员', '老师', '学生']
+            }
         },
+        // 首页
         {
-            path: "/index",
+            path: '/index',
+            // path:"/",
             component: index,
             meta: {
-                title: "首页",
-                rules: ['管理员','老师','学生']
+                title: '首页',
+                // 允许访问的角色
+                rules: ['超级管理员', '管理员', '老师', '学生']
             },
             // 嵌套路由
-            children: [
-                {
-                    //不用加/ 
-                    //会自动解析为/chart
-                    path: "chart",
-                    component: chart,
-                    meta: {
-                        title: "数据概览",
-                        rules: ['管理员','老师','学生']
-                    },
-                },
-                {
-                    path: "enterprise",
-                    component: enterprise,
-                    meta: {
-                        title: "企业列表",
-                        rules: ['管理员']
-
-                    },
-                },
-                {
-                    path: "questuon",
-                    component: questuon,
-                    meta: {
-                        title: "题库列表",
-                        rules: ['管理员','老师']
-                    },
-                },
-                {
-                    path: "subject",
-                    component: subject,
-                    meta: {
-                        title: "学科列表",
-                        rules: ['管理员','老师','学生']
-                    },
-                },
-                {
-                    path: "user",
-                    component: user,
-                    meta: {
-                        title: "用户列表",
-                        rules: [ '管理员']
-                    },
-                },
-
-            ]
+            children // children:children
         }
     ]
-
-})
-
+});
 
 // 定义 路由白名单 （不需要登录就可以访问的页面）
 const whitePaths = ['/login'];
 
-//导航守卫 beforeEach进入之前
-
+// 导航守卫 beforeEach 进入之前
 router.beforeEach((to, from, next) => {
-    // to and from are both route objects. must call `next`.
-    //开启进度条
-    NProgress.start()
-    //向后走
-    // if (to.path != '/login') {
-    // 白名单判断 不存在 转小写
-
-    if (whitePaths.includes(to.path.toLocaleLowerCase()) != true) {
-        //需要判断登录
-        // token 非空
-        if (getToken() == undefined) {
-            //为空 就返回登录页
-            Message.warning('登录状态有误，请检查');
-            //this不是vue示列
-            next('/login')
+    // 开启进度条
+    NProgress.start();
+    // 白名单
+    if (whitePaths.includes(to.path.toLocaleLowerCase()) !== true) {
+        // 判断token 是否存在
+        // 不存在 提示用户，并打回登录页 缓存不存在 是null 要么用== 要么改为 null
+        if (getToken() === null) {
+            Message.warning('请先登录');
+            NProgress.done();
+            next('/login');
         } else {
-            // token不为空 token正确判断
+            // token 存在
+            // 对错判断
             info().then(res => {
-                // window.console.log(res)
+                // window.console.log(res);
                 if (res.data.code === 206) {
-                    //弹出提示
-                    Message.warning('登录有误请重新登录')
-                    // 删除token
-                    removeToken()
-                    //返回登录页
-                    next('/login')
+                    // token有问题
+                    removeToken();
+                    Message.warning('登录状态有误，请重新登录');
+                    NProgress.done();
+                    next('/login');
                 } else if (res.data.code === 200) {
+                    // 用户状态判断:
+                    // info接口抽取的时候 没有 注册拦截器 获取简化data
                     if (res.data.data.status === 1) {
-                        //用户名
+                        // 启用
+                        // 处理用户的信息 用户的名字
                         const username = res.data.data.username;
-                        // 用户头像
-                        const userIcon = process.env.VUE_APP_URL + "/" + res.data.data.avatar;
+                        // 处理用户的信息 用户的头像
+                        const userIcon = process.env.VUE_APP_URL + '/' + res.data.data.avatar;
                         // 调用仓库的方法
-                        store.commit('changeIcon', userIcon)
-                        store.commit('changeName', username)
+                        store.commit('changeIcon', userIcon);
+                        store.commit('changeName', username);
+                        // window.console.log(from)
+                        // 如果是从 不需要登陆的页面过来的，弹框
                         if (whitePaths.includes(from.path)) {
-                            // 欢迎你
-                            Message.success('欢迎你')
+                            // 可以正常访问时，才提示欢迎
+                            Message.success('欢迎你！！');
                         }
-                        const role = res.data.data.role
-                        // 获取用户的角色
+                        // 获取当前用户的角色
+                        const role = res.data.data.role;
+                        // 调用仓库方法 保存起来
+                        store.commit('changeRole', role);
+                        // 判断是否有访问的权限
                         if (to.meta.rules.includes(role)) {
-                            // 获取成功放走
-                            next()
+                            // 有 放走
+                            next();
                         } else {
-                            // 没有提示用户
-                            Message.warning('没有权限,无法访问')
-                            NProgress.done
+                            // 没有 提示用户
+                            Message.warning('没有访问权限，无法访问');
+                            // 关闭进度条
+                            NProgress.done();
                         }
                     } else {
-                        //禁用状态
+                        // 禁用状态
+                        // 提示用户
                         // 打回登录页
-                        Message.waring('当前处于禁用状态,请联系管理员启用')
-                        NProgress();
-                        next('/login')
+                        Message.warning('当前出于禁用状态，请等待管理员审核');
+                        NProgress.done();
+                        next('/login');
                     }
                 }
-            })
+            });
         }
     } else {
-        //登录页
-        next()
+        // 白名单中的页面
+        // 放走
+        next();
     }
-})
-
-//导航守卫 afterEach 进入完成之后
+});
+// 导航守卫 afterEach 进入完成之后
+// router.afterEach((to,from)=>{
 router.afterEach(to => {
+    // window.console.log(to)
     // 关闭进度条
-    NProgress.done()
-    //修改标题
-    window.document.title = to.meta.title
-})
+    NProgress.done();
+    // 修改标题
+    window.document.title = to.meta.title;
+});
 
-export default router
+// 暴露出去
+export default router;

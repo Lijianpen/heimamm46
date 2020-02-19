@@ -100,6 +100,7 @@ export default {
         this.$nextTick(() => {
           // 修改公共对话框的 标记字段  改为false  新增状态
           this.isEdit = false;
+          delete this.form.id;
           // 直接设置一个新的对象
           this.form = {
             // 用户名
@@ -161,7 +162,7 @@ export default {
                 // 清空表单
                 this.$refs[formName].resetFields();
                 // 父组件重新获取数据
-                this.$parent.getData();
+             this.$parent.getData()
               }
             });
           }
@@ -175,16 +176,4 @@ export default {
 };
 </script>
 
-<style lang="less">
-.subject-edit {
-  .el-dialog__header {
-    background: linear-gradient(to right, #00c6f9, #1495fb);
-  }
-  .el-dialog__title {
-    color: white;
-  }
-  .el-dialog__close {
-    color: white;
-  }
-}
-</style>
+<style lang="less"></style>

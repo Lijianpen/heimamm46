@@ -17,33 +17,25 @@
       </el-header>
       <el-container>
         <!-- 侧边栏 -->
-        <el-aside width="aotu">
+        <el-aside width="auto" class="my-aside">
+          <!-- 导航菜单 -->
           <el-menu
             router
             :collapse="isCollapse"
-            default-active="$route.path"
+            :default-active="$route.path"
             class="el-menu-vertical-demo"
           >
-            <el-menu-item index="/index/chart">
-              <i class="el-icon-pie-chart"></i>
-              <span slot="title">数据概览</span>
-            </el-menu-item>
-            <el-menu-item index="/index/user">
-              <i class="el-icon-user"></i>
-              <span slot="title">用户列表</span>
-            </el-menu-item>
-            <el-menu-item index="/index/questuon">
-              <i class="el-icon-edit-outline"></i>
-              <span slot="title">题库列表</span>
-            </el-menu-item>
-            <el-menu-item index="/index/enterprise">
-              <i class="el-icon-office-building"></i>
-              <span slot="title">企业列表</span>
-            </el-menu-item>
-            <el-menu-item index="/index/subject">
-              <i class="el-icon-notebook-2"></i>
-              <span slot="title">学科列表</span>
-            </el-menu-item>
+            <template v-for="(item, index) in navRoutes">
+              <el-menu-item
+                :key="index"
+                :index="item.meta.fullPath"
+                v-if="item.meta.rules.includes($store.state.role)"
+              >
+                <!-- 图标 -->
+                <i :class="item.meta.icon"></i>
+                <span slot="title">{{ item.meta.title }}</span>
+              </el-menu-item>
+            </template>
           </el-menu>
         </el-aside>
         <el-main>
@@ -56,7 +48,8 @@
 </template>
 <script>
 import { logout } from "@/api/index";
-import {  removeToken } from "@/utils//token";
+import { removeToken } from "@/utils//token";
+import navRoutes from "../../route/childrenRoutes.js";
 export default {
   name: "index",
   data() {
@@ -66,7 +59,8 @@ export default {
       // // 用户头像
       // userIcon: "",
       //是否折叠
-      isCollapse: false
+      isCollapse: false,
+      navRoutes: navRoutes
     };
   },
   methods: {
@@ -84,8 +78,8 @@ export default {
               // 移除token
               removeToken();
               //移除头像和名字
-              this.$store.commit('changeIcon','')
-              this.$store.commit('changeName','')
+              this.$store.commit("changeIcon", "");
+              this.$store.commit("changeName", "");
               // 去登录页
               this.$router.push("/login");
             }
@@ -96,8 +90,7 @@ export default {
         });
     }
   },
-  created() {
-  },
+  created() {}
 };
 </script>
 <style lang="less">
@@ -150,7 +143,7 @@ export default {
   }
 
   .el-menu-vertical-demo:not(.el-menu--collapse) {
-    width: 150px;
+    width: 200px;
     min-height: 400px;
   }
 }
